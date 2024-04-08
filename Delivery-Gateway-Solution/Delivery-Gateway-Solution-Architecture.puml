@@ -1,0 +1,21 @@
+@startuml
+
+participant Application
+participant Gateway
+participant GatewayDBCache
+Database GatewayDB
+
+title An Example Post Checkout Order Journey - Sequence Diagram
+== New Order To Be Processed ==
+Application->Gateway: /newOrder(orderId + headers)
+Gateway-> Application: Response (status code: 200, **orderID**)
+== Order Status Check  ==
+Application -> Gateway: /orderStatusCheck?orderId
+Gateway -> Gateway: getInternalStatus(orderId)
+Gateway -> GatewayDBCache: queryCache(orderId)
+GatewayDBCache -> Gateway: Response
+Gateway-> Application: Response (status code: 200, **orderStatus**)
+GatewayDBCache --> GatewayDB: async update
+GatewayDB --> GatewayDBCache: async update
+
+@enduml
